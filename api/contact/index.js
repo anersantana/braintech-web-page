@@ -1,0 +1,380 @@
+const https = require("https");
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Security config
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Allowed origins — set ALLOWED_ORIGINS env var as comma-separated list.
+ * Example: "https://braintechsolution.com,https://www.braintechsolution.com"
+ * Falls back to blocking all if not set (forces you to configure it).
+ */
+function getAllowedOrigins() {
+  return (process.env.ALLOWED_ORIGINS || "")
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean);
+}
+
+/**
+ * In-memory rate limiter.
+ * Limits each IP to MAX_REQUESTS_PER_WINDOW requests per WINDOW_MS.
+ * NOTE: resets on each cold start — good enough for contact forms.
+ * For stricter limits, replace with Azure Cache for Redis.
+ */
+const rateMap = new Map();
+const WINDOW_MS = 10 * 60 * 1000; // 10 minutes
+const MAX_REQUESTS = 5;            // max 5 submissions per IP per window
+
+function isRateLimited(ip) {
+  const now = Date.now();
+  const entry = rateMap.get(ip) || { count: 0, windowStart: now };
+
+  if (now - entry.windowStart > WINDOW_MS) {
+    // Reset window
+    rateMap.set(ip, { count: 1, windowStart: now });
+    return false;
+  }
+
+  if (entry.count >= MAX_REQUESTS) return true;
+
+  entry.count++;
+  rateMap.set(ip, entry);
+  return false;
+}
+
+/** Periodically clean old entries to avoid memory leak on long-running instances */
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, entry] of rateMap.entries()) {
+    if (now - entry.windowStart > WINDOW_MS * 2) rateMap.delete(ip);
+  }
+}, WINDOW_MS);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────────────────────────────────────
+
+function httpPost(hostname, path, headers, body) {
+  return new Promise((resolve, reject) => {
+    const payload = JSON.stringify(body);
+    const req = https.request(
+      {
+        hostname,
+        path,
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Length": Buffer.byteLength(payload),
+          ...headers,
+        },
+      },
+      (res) => {
+        let data = "";
+        res.on("data", (chunk) => (data += chunk));
+        res.on("end", () => resolve({ status: res.statusCode, body: data }));
+      }
+    );
+    req.on("error", reject);
+    req.write(payload);
+    req.end();
+  });
+}
+
+function parseRecipients(envVar) {
+  return (envVar || "")
+    .split(",")
+    .map((e) => e.trim())
+    .filter(Boolean)
+    .map((email) => ({ Email: email }));
+}
+
+function getClientIp(req) {
+  // Azure SWA passes the real IP in this header
+  return (
+    req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
+    req.headers["client-ip"] ||
+    "unknown"
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// reCAPTCHA v3 verification
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function verifyRecaptcha(token) {
+  const secret = process.env.RECAPTCHA_SECRET_KEY;
+  if (!secret) {
+    // If not configured, skip verification (log a warning)
+    console.warn("[reCAPTCHA] RECAPTCHA_SECRET_KEY not set — skipping verification");
+    return true;
+  }
+  if (!token) return false;
+
+  const body = `secret=${encodeURIComponent(secret)}&response=${encodeURIComponent(token)}`;
+
+  return new Promise((resolve) => {
+    const req = https.request(
+      {
+        hostname: "www.google.com",
+        path: "/recaptcha/api/siteverify",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Content-Length": Buffer.byteLength(body),
+        },
+      },
+      (res) => {
+        let data = "";
+        res.on("data", (chunk) => (data += chunk));
+        res.on("end", () => {
+          try {
+            const result = JSON.parse(data);
+            // score >= 0.5 means likely human (0.0 = bot, 1.0 = human)
+            const MIN_SCORE = parseFloat(process.env.RECAPTCHA_MIN_SCORE || "0.5");
+            resolve(result.success && result.score >= MIN_SCORE);
+          } catch {
+            resolve(false);
+          }
+        });
+      }
+    );
+    req.on("error", () => resolve(false));
+    req.write(body);
+    req.end();
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Mailjet
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function sendMailjet({ name, company, email, phone, service, message }) {
+  const MJ_API_KEY    = process.env.MJ_API_KEY;
+  const MJ_SECRET_KEY = process.env.MJ_SECRET_KEY;
+  const FROM_EMAIL    = process.env.MJ_FROM_EMAIL || "noreply@braintechsolution.com";
+  const FROM_NAME     = process.env.MJ_FROM_NAME  || "Braintech Solution SRL";
+  const TO_EMAILS     = parseRecipients(process.env.MJ_TO_EMAILS);
+
+  if (!MJ_API_KEY || !MJ_SECRET_KEY) throw new Error("Mailjet credentials missing");
+  if (TO_EMAILS.length === 0)        throw new Error("MJ_TO_EMAILS env var is empty");
+
+  const authHeader = "Basic " + Buffer.from(`${MJ_API_KEY}:${MJ_SECRET_KEY}`).toString("base64");
+
+  const htmlBody = `
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#111827;">
+      <div style="background:linear-gradient(135deg,#0F2E6B,#1A56DB);padding:28px 32px;border-radius:10px 10px 0 0;">
+        <h1 style="color:#fff;margin:0;font-size:22px;">Nueva solicitud de contacto</h1>
+        <p style="color:rgba(255,255,255,.7);margin:6px 0 0;font-size:14px;">Braintech Solution SRL</p>
+      </div>
+      <div style="background:#F9FAFB;padding:28px 32px;border:1px solid #E5E7EB;border-top:none;border-radius:0 0 10px 10px;">
+        <table style="width:100%;border-collapse:collapse;font-size:14px;">
+          <tr><td style="padding:10px 0;border-bottom:1px solid #E5E7EB;color:#6B7280;width:140px;">Nombre</td><td style="padding:10px 0;border-bottom:1px solid #E5E7EB;font-weight:600;">${name}</td></tr>
+          <tr><td style="padding:10px 0;border-bottom:1px solid #E5E7EB;color:#6B7280;">Empresa</td><td style="padding:10px 0;border-bottom:1px solid #E5E7EB;">${company || "—"}</td></tr>
+          <tr><td style="padding:10px 0;border-bottom:1px solid #E5E7EB;color:#6B7280;">Email</td><td style="padding:10px 0;border-bottom:1px solid #E5E7EB;"><a href="mailto:${email}" style="color:#1A56DB;">${email}</a></td></tr>
+          <tr><td style="padding:10px 0;border-bottom:1px solid #E5E7EB;color:#6B7280;">Teléfono</td><td style="padding:10px 0;border-bottom:1px solid #E5E7EB;">${phone || "—"}</td></tr>
+          <tr><td style="padding:10px 0;border-bottom:1px solid #E5E7EB;color:#6B7280;">Servicio</td><td style="padding:10px 0;border-bottom:1px solid #E5E7EB;"><span style="background:#EBF2FF;color:#1A56DB;padding:3px 10px;border-radius:99px;font-size:13px;">${service || "No especificado"}</span></td></tr>
+        </table>
+        <div style="margin-top:20px;">
+          <p style="color:#6B7280;font-size:13px;margin-bottom:8px;">Mensaje</p>
+          <div style="background:#fff;border:1px solid #E5E7EB;border-radius:8px;padding:16px;font-size:14px;line-height:1.6;color:#374151;">${message.replace(/\n/g, "<br>")}</div>
+        </div>
+        <div style="margin-top:24px;text-align:center;">
+          <a href="mailto:${email}" style="display:inline-block;background:linear-gradient(135deg,#1A56DB,#0EA5E9);color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;">Responder a ${name}</a>
+        </div>
+      </div>
+      <p style="text-align:center;font-size:12px;color:#9CA3AF;margin-top:16px;">Braintech Solution SRL · República Dominicana</p>
+    </div>`;
+
+  const result = await httpPost(
+    "api.mailjet.com",
+    "/v3.1/send",
+    { Authorization: authHeader },
+    {
+      Messages: [
+        {
+          From:     { Email: FROM_EMAIL, Name: FROM_NAME },
+          To:       TO_EMAILS,
+          ReplyTo:  { Email: email, Name: name },
+          Subject:  `[Contacto] ${name} — ${service || "Consulta general"}`,
+          HTMLPart: htmlBody,
+          TextPart: `Nombre: ${name}\nEmpresa: ${company}\nEmail: ${email}\nTeléfono: ${phone}\nServicio: ${service}\n\nMensaje:\n${message}`,
+        },
+      ],
+    }
+  );
+
+  if (result.status >= 400) throw new Error(`Mailjet error ${result.status}: ${result.body}`);
+  return result;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// New Relic Custom Event
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function sendNewRelicEvent({ name, company, email, service }, clientIp) {
+  const NR_ACCOUNT_ID = process.env.NR_ACCOUNT_ID;
+  const NR_INSERT_KEY = process.env.NR_INSERT_KEY;
+
+  if (!NR_ACCOUNT_ID || !NR_INSERT_KEY) {
+    console.warn("[NewRelic] Credentials missing — skipping event");
+    return null;
+  }
+
+  const result = await httpPost(
+    "insights-collector.newrelic.com",
+    `/v1/accounts/${NR_ACCOUNT_ID}/events`,
+    { "X-Insert-Key": NR_INSERT_KEY },
+    {
+      eventType:       "ContactFormSubmission",
+      appName:         "Braintech-SWA",
+      environment:     process.env.ENVIRONMENT || "production",
+      leadName:        name,
+      leadCompany:     company || "",
+      leadEmail:       email,
+      serviceInterest: service || "not_specified",
+      clientIp:        clientIp,
+      timestamp:       Math.floor(Date.now() / 1000),
+    }
+  );
+
+  if (result.status >= 400) {
+    console.error(`[NewRelic] Event error ${result.status}: ${result.body}`);
+  }
+  return result;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Input validation
+// ─────────────────────────────────────────────────────────────────────────────
+
+function validate({ name, email, message }) {
+  const errors = [];
+  if (!name || name.trim().length < 2)
+    errors.push("name is required (min 2 chars)");
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    errors.push("valid email is required");
+  if (!message || message.trim().length < 5)
+    errors.push("message is required (min 5 chars)");
+  return errors;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Azure Function entry point
+// ─────────────────────────────────────────────────────────────────────────────
+
+module.exports = async function (context, req) {
+  const clientIp    = getClientIp(req);
+  const origin      = req.headers["origin"] || "";
+  const allowedOrigins = getAllowedOrigins();
+
+  // ── CORS headers (always include on every response) ──────────────────────
+  const corsHeaders = {
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    // Only echo back the origin if it's in the allowed list; otherwise block
+    "Access-Control-Allow-Origin":
+      allowedOrigins.length === 0 || allowedOrigins.includes(origin)
+        ? origin || "*"
+        : "null",
+    "Vary": "Origin",
+  };
+
+  // ── Pre-flight ────────────────────────────────────────────────────────────
+  if (req.method === "OPTIONS") {
+    context.res = { status: 204, headers: corsHeaders, body: "" };
+    return;
+  }
+
+  // ── Method check ──────────────────────────────────────────────────────────
+  if (req.method !== "POST") {
+    context.res = { status: 405, headers: corsHeaders, body: { error: "Method not allowed" } };
+    return;
+  }
+
+  // ── Origin check ─────────────────────────────────────────────────────────
+  // Block requests that don't come from an allowed origin
+  // (allowedOrigins empty = dev mode — logs a warning but allows)
+  if (allowedOrigins.length > 0 && !allowedOrigins.includes(origin)) {
+    context.log.warn(`[Security] Blocked request from origin: "${origin}" | IP: ${clientIp}`);
+    context.res = {
+      status: 403,
+      headers: corsHeaders,
+      body: { error: "Forbidden" },
+    };
+    return;
+  }
+
+  // ── Rate limiting ─────────────────────────────────────────────────────────
+  if (isRateLimited(clientIp)) {
+    context.log.warn(`[Security] Rate limit exceeded for IP: ${clientIp}`);
+    context.res = {
+      status: 429,
+      headers: { ...corsHeaders, "Retry-After": "600" },
+      body: { error: "Demasiados intentos. Por favor espera 10 minutos e intenta de nuevo." },
+    };
+    return;
+  }
+
+  // ── reCAPTCHA v3 ─────────────────────────────────────────────────────────
+  const { name, company, email, phone, service, message, recaptchaToken } = req.body || {};
+
+  const recaptchaOk = await verifyRecaptcha(recaptchaToken);
+  if (!recaptchaOk) {
+    context.log.warn(`[Security] reCAPTCHA failed for IP: ${clientIp}`);
+    context.res = {
+      status: 400,
+      headers: corsHeaders,
+      body: { error: "Verificación de seguridad fallida. Por favor recarga la página e intenta de nuevo." },
+    };
+    return;
+  }
+
+  // ── Input validation ──────────────────────────────────────────────────────
+  const errors = validate({ name, email, message });
+  if (errors.length > 0) {
+    context.res = {
+      status: 400,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      body: { ok: false, errors },
+    };
+    return;
+  }
+
+  const payload = {
+    name:    name.trim(),
+    company: (company || "").trim(),
+    email:   email.trim().toLowerCase(),
+    phone:   (phone || "").trim(),
+    service: (service || "").trim(),
+    message: message.trim(),
+  };
+
+  // ── Send in parallel ──────────────────────────────────────────────────────
+  const [mailResult, nrResult] = await Promise.allSettled([
+    sendMailjet(payload),
+    sendNewRelicEvent(payload, clientIp),
+  ]);
+
+  if (mailResult.status === "rejected") {
+    context.log.error("[Mailjet] Failed:", mailResult.reason?.message);
+    context.res = {
+      status: 502,
+      headers: corsHeaders,
+      body: { ok: false, error: "No se pudo enviar el mensaje. Por favor intenta de nuevo." },
+    };
+    return;
+  }
+
+  if (nrResult.status === "rejected") {
+    context.log.warn("[NewRelic] Event failed (non-fatal):", nrResult.reason?.message);
+  }
+
+  context.log.info(`[Contact] ✓ Submission from ${payload.email} | IP: ${clientIp}`);
+
+  context.res = {
+    status: 200,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    body: { ok: true, message: "Mensaje recibido. Te contactaremos pronto." },
+  };
+};
