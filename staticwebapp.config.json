@@ -6,17 +6,17 @@
     },
     {
       "route": "/*",
-      "serve": "/contacto.html",
+      "serve": "/index.html",
       "statusCode": 200
     }
   ],
   "navigationFallback": {
-    "rewrite": "/contacto.html",
+    "rewrite": "/index.html",
     "exclude": ["/api/*", "/*.{css,js,png,ico,json}"]
   },
   "responseOverrides": {
     "404": {
-      "rewrite": "/contacto.html",
+      "rewrite": "/index.html",
       "statusCode": 200
     }
   },
