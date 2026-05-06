@@ -11,8 +11,6 @@
     "build": "echo No build step required"
   },
   "dependencies": {},
-  "devDependencies": {
-    "azure-functions-core-tools": "^4"
-  },
+  "devDependencies": {},
   "private": true
 }
