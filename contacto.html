@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contacto | Braintech Solution SRL</title>
+  <!-- reCAPTCHA v3: replace YOUR_SITE_KEY with your actual site key -->
+  <script src="https://www.google.com/recaptcha/api.js?render=YOUR_RECAPTCHA_SITE_KEY" async defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary:       #1A56DB;
+      --primary-dark:  #1341B0;
+      --primary-light: #EBF2FF;
+      --accent:        #0EA5E9;
+      --text-dark:     #111827;
+      --text-mid:      #374151;
+      --text-light:    #6B7280;
+      --border:        #E5E7EB;
+      --bg:            #F9FAFB;
+      --white:         #FFFFFF;
+      --success:       #059669;
+      --radius:        12px;
+      --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+      --shadow-md:     0 4px 16px rgba(0,0,0,.10);
+      --shadow-lg:     0 12px 40px rgba(26,86,219,.12);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text-dark);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── NAV ─────────────────────────────────── */
+    nav {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo-icon svg { width: 22px; height: 22px; fill: white; }
+    .logo-text { display: flex; flex-direction: column; line-height: 1.1; }
+    .logo-text span:first-child {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-dark);
+      letter-spacing: -.3px;
+    }
+    .logo-text span:last-child {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-light);
+      letter-spacing: .2px;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-mid);
+      text-decoration: none;
+      padding: 6px 14px;
+      border-radius: 8px;
+      transition: background .15s, color .15s;
+    }
+    .nav-links a:hover { background: var(--primary-light); color: var(--primary); }
+    .nav-links .btn-nav {
+      background: var(--primary);
+      color: white !important;
+      padding: 8px 18px;
+    }
+    .nav-links .btn-nav:hover { background: var(--primary-dark); }
+
+    /* ── HERO ─────────────────────────────────── */
+    .hero {
+      background: linear-gradient(135deg, #0F2E6B 0%, #1A56DB 55%, #0EA5E9 100%);
+      padding: 72px 24px 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.25);
+      color: white;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 5px 14px;
+      border-radius: 99px;
+      margin-bottom: 22px;
+      backdrop-filter: blur(4px);
+    }
+    .hero-badge svg { width: 14px; height: 14px; fill: #7DD3FC; }
+    .hero h1 {
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 800;
+      color: white;
+      line-height: 1.15;
+      letter-spacing: -.5px;
+      margin-bottom: 16px;
+    }
+    .hero h1 span { color: #7DD3FC; }
+    .hero p {
+      font-size: 17px;
+      color: rgba(255,255,255,.82);
+      max-width: 560px;
+      margin: 0 auto;
+      font-weight: 400;
+    }
+
+    /* ── CHIPS ─────────────────────────────────── */
+    .services-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      padding: 32px 24px;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    .chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: 8px 18px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--text-mid);
+      box-shadow: var(--shadow-sm);
+      transition: border-color .2s, color .2s, box-shadow .2s;
+    }
+    .chip:hover { border-color: var(--primary); color: var(--primary); box-shadow: 0 2px 8px rgba(26,86,219,.12); }
+    .chip-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    /* ── MAIN GRID ─────────────────────────────────── */
+    .main-section {
+      max-width: 1100px;
+      margin: 0 auto 80px;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      gap: 36px;
+      align-items: start;
+    }
+
+    /* ── INFO CARD ─────────────────────────────────── */
+    .info-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+    }
+    .info-card-header {
+      background: linear-gradient(135deg, #0F2E6B, #1A56DB);
+      padding: 28px 28px 24px;
+      color: white;
+    }
+    .info-card-header h2 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .info-card-header p {
+      font-size: 13.5px;
+      color: rgba(255,255,255,.75);
+      line-height: 1.5;
+    }
+    .info-card-body { padding: 24px 28px; }
+    .info-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .info-item:last-child { border-bottom: none; }
+    .info-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--primary-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .info-icon svg { width: 18px; height: 18px; stroke: var(--primary); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .info-label { font-size: 11.5px; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 3px; }
+    .info-value { font-size: 14.5px; font-weight: 500; color: var(--text-dark); }
+    .info-value a { color: var(--primary); text-decoration: none; }
+    .info-value a:hover { text-decoration: underline; }
+    .info-sub { font-size: 12.5px; color: var(--text-light); margin-top: 2px; }
+
+    .hours-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px 12px;
+      margin-top: 4px;
+    }
+    .hours-row { font-size: 13px; color: var(--text-mid); }
+    .hours-row span { color: var(--text-light); font-size: 12px; }
+
+    /* trust badges */
+    .trust-strip {
+      background: var(--primary-light);
+      border-top: 1px solid #DBEAFE;
+      padding: 16px 28px;
+      display: flex;
+      gap: 18px;
+      align-items: center;
+    }
+    .trust-item { display: flex; flex-direction: column; align-items: center; text-align: center; flex: 1; }
+    .trust-num { font-size: 20px; font-weight: 800; color: var(--primary); line-height: 1; }
+    .trust-lbl { font-size: 11px; color: var(--text-light); margin-top: 2px; font-weight: 500; }
+    .trust-div { width: 1px; background: #BFDBFE; height: 36px; }
+
+    /* ── FORM CARD ─────────────────────────────────── */
+    .form-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
+    .form-card-header {
+      padding: 28px 32px 0;
+    }
+    .form-card-header h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 6px;
+    }
+    .form-card-header p {
+      font-size: 14px;
+      color: var(--text-light);
+    }
+    form { padding: 24px 32px 32px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .field { margin-bottom: 18px; }
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-mid);
+      margin-bottom: 6px;
+    }
+    .field label .req { color: var(--primary); margin-left: 2px; }
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 11px 14px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--text-dark);
+      background: var(--white);
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+    }
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(26,86,219,.1);
+    }
+    .field input::placeholder,
+    .field textarea::placeholder { color: #9CA3AF; }
+    .field textarea { resize: vertical; min-height: 110px; }
+    .field select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+    .field select option[value=""] { color: #9CA3AF; }
+
+    .privacy-note {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: var(--primary-light);
+      border: 1px solid #BFDBFE;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 22px;
+    }
+    .privacy-note svg { width: 16px; height: 16px; stroke: var(--primary); fill: none; stroke-width: 2; flex-shrink: 0; margin-top: 1px; }
+    .privacy-note p { font-size: 12.5px; color: #1E40AF; line-height: 1.5; }
+
+    .btn-submit {
+      width: 100%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 24px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: opacity .2s, transform .1s, box-shadow .2s;
+      box-shadow: 0 4px 14px rgba(26,86,219,.3);
+      letter-spacing: .1px;
+    }
+    .btn-submit:hover { opacity: .92; box-shadow: 0 6px 20px rgba(26,86,219,.35); }
+    .btn-submit:active { transform: scale(.99); }
+    .btn-submit svg { width: 18px; height: 18px; stroke: white; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ── SUCCESS MESSAGE ─────────────────────────────────── */
+    .success-msg {
+      display: none;
+      text-align: center;
+      padding: 40px 32px;
+    }
+    .success-icon {
+      width: 64px;
+      height: 64px;
+      background: #D1FAE5;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 18px;
+    }
+    .success-icon svg { width: 30px; height: 30px; stroke: var(--success); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .success-msg h3 { font-size: 20px; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; }
+    .success-msg p { font-size: 14px; color: var(--text-light); max-width: 320px; margin: 0 auto; }
+
+    /* ── WHATSAPP FLOAT ─────────────────────────────────── */
+    .wa-float {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      width: 56px;
+      height: 56px;
+      background: #25D366;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(37,211,102,.45);
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform .2s, box-shadow .2s;
+      z-index: 200;
+    }
+    .wa-float:hover { transform: scale(1.08); box-shadow: 0 6px 22px rgba(37,211,102,.55); }
+    .wa-float svg { width: 28px; height: 28px; fill: white; }
+    .wa-tooltip {
+      position: absolute;
+      right: 66px;
+      background: #1F2937;
+      color: white;
+      font-size: 12.5px;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 8px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s;
+    }
+    .wa-float:hover .wa-tooltip { opacity: 1; }
+
+    /* ── FOOTER ─────────────────────────────────── */
+    footer {
+      background: #0F172A;
+      padding: 40px 24px 24px;
+      color: rgba(255,255,255,.55);
+    }
+    .footer-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .footer-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 32px;
+      flex-wrap: wrap;
+      padding-bottom: 32px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .footer-brand .logo-text span:first-child { color: white; }
+    .footer-brand p {
+      font-size: 13px;
+      color: rgba(255,255,255,.45);
+      margin-top: 10px;
+      max-width: 240px;
+      line-height: 1.6;
+    }
+    .footer-col h4 {
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255,255,255,.85);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 14px;
+    }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .footer-col ul a { font-size: 13.5px; color: rgba(255,255,255,.5); text-decoration: none; transition: color .15s; }
+    .footer-col ul a:hover { color: white; }
+    .footer-bottom {
+      padding-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .footer-bottom p { font-size: 12.5px; }
+    .dgii-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: rgba(255,255,255,.45);
+    }
+    .dgii-badge svg { width: 16px; height: 16px; fill: #60A5FA; }
+
+    /* ── SOLUCIONES SECTION ─────────────────────────────────── */
+    .soluciones-section {
+      background: var(--white);
+      padding: 72px 24px 80px;
+      border-top: 1px solid var(--border);
+    }
+    .sol-inner { max-width: 1100px; margin: 0 auto; }
+    .sol-header { text-align: center; margin-bottom: 44px; }
+    .sol-badge {
+      display: inline-block;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 5px 14px;
+      border-radius: 99px;
+      margin-bottom: 14px;
+    }
+    .sol-header h2 {
+      font-size: clamp(24px, 4vw, 36px);
+      font-weight: 800;
+      color: var(--text-dark);
+      letter-spacing: -.4px;
+      margin-bottom: 12px;
+    }
+    .sol-header p {
+      font-size: 16px;
+      color: var(--text-light);
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    /* Tab buttons */
+    .sol-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+    .sol-tab {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      border: 1.5px solid var(--border);
+      border-radius: 99px;
+      background: var(--white);
+      color: var(--text-mid);
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .sol-tab svg { width: 17px; height: 17px; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .sol-tab:hover { border-color: var(--primary); color: var(--primary); }
+    .sol-tab.active[data-accent="blue"]   { background: #1A56DB; border-color: #1A56DB; color: white; }
+    .sol-tab.active[data-accent="cyan"]   { background: #0284C7; border-color: #0284C7; color: white; }
+    .sol-tab.active[data-accent="purple"] { background: #7C3AED; border-color: #7C3AED; color: white; }
+    .sol-tab.active svg { stroke: white; }
+
+    /* Panels */
+    .sol-panel { display: none; }
+    .sol-panel.active { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+
+    /* Module cards */
+    .sol-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: box-shadow .2s, transform .2s;
+    }
+    .sol-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .sol-card-head {
+      padding: 18px 20px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sol-card-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .sol-card-icon svg { width: 19px; height: 19px; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .sol-card-title { font-size: 14.5px; font-weight: 700; color: var(--text-dark); }
+    .sol-card-sub   { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+    .sol-card-body  { padding: 14px 20px 18px; }
+    .sol-feature {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      padding: 7px 0;
+      border-bottom: 1px solid #F3F4F6;
+      font-size: 13.5px;
+      color: var(--text-mid);
+      line-height: 1.4;
+    }
+    .sol-feature:last-child { border-bottom: none; }
+    .sol-check {
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .sol-check svg { width: 10px; height: 10px; stroke: white; fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    .sol-tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 99px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    /* Color accents per tab */
+    .acc-blue   { background: var(--primary-light); }
+    .acc-blue   .sol-card-icon { background: #DBEAFE; }
+    .acc-blue   .sol-card-icon svg { stroke: #1A56DB; }
+    .acc-blue   .sol-check { background: #1A56DB; }
+    .acc-cyan   { background: #F0F9FF; }
+    .acc-cyan   .sol-card-icon { background: #E0F2FE; }
+    .acc-cyan   .sol-card-icon svg { stroke: #0284C7; }
+    .acc-cyan   .sol-check { background: #0284C7; }
+    .acc-purple { background: #FAF5FF; }
+    .acc-purple .sol-card-icon { background: #EDE9FE; }
+    .acc-purple .sol-card-icon svg { stroke: #7C3AED; }
+    .acc-purple .sol-check { background: #7C3AED; }
+
+    /* ── RESPONSIVE ─────────────────────────────────── */
+    @media (max-width: 768px) {
+      .main-section { grid-template-columns: 1fr; gap: 24px; }
+      .form-row { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+      .trust-strip { flex-wrap: wrap; }
+      .footer-top { flex-direction: column; gap: 24px; }
+      form { padding: 20px 20px 24px; }
+      .form-card-header { padding: 24px 20px 0; }
+      .sol-panel.active { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      </div>
+      <div class="logo-text">
+        <span>Braintech Solution</span>
+        <span>República Dominicana</span>
+      </div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#">Inicio</a></li>
+      <li><a href="#soluciones">Soluciones</a></li>
+      <li><a href="#">Precios</a></li>
+      <li><a href="#contact-form" class="btn-nav">Contáctanos</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">
+    <svg viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+    República Dominicana
+  </div>
+  <h1>¿Listo para digitalizar<br>tu <span>empresa dominicana</span>?</h1>
+  <p>Hablemos sobre cómo nuestras soluciones de facturación, inventario, contabilidad y e-CF pueden transformar tu negocio.</p>
+</section>
+
+<!-- SERVICE CHIPS -->
+<div class="services-chips">
+  <div class="chip"><span class="chip-dot" style="background:#1A56DB;"></span>Facturación Electrónica (e-CF)</div>
+  <div class="chip"><span class="chip-dot" style="background:#0EA5E9;"></span>Sistema de Inventario</div>
+  <div class="chip"><span class="chip-dot" style="background:#8B5CF6;"></span>Contabilidad</div>
+  <div class="chip"><span class="chip-dot" style="background:#059669;"></span>Facturación Comercial</div>
+  <div class="chip"><span class="chip-dot" style="background:#F59E0B;"></span>Punto de Venta (POS)</div>
+</div>
+
+<!-- SOLUCIONES -->
+<section class="soluciones-section" id="soluciones">
+  <div class="sol-inner">
+
+    <div class="sol-header">
+      <span class="sol-badge">Nuestras Soluciones</span>
+      <h2>Software diseñado para empresas dominicanas</h2>
+      <p>Módulos integrados que se adaptan a tu negocio — desde una tienda hasta una empresa multinivel.</p>
+    </div>
+
+    <!-- Tab buttons -->
+    <div class="sol-tabs">
+      <button class="sol-tab active" data-tab="facturacion" data-accent="blue">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Facturación
+      </button>
+      <button class="sol-tab" data-tab="inventario" data-accent="cyan">
+        <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        Inventario
+      </button>
+      <button class="sol-tab" data-tab="contabilidad" data-accent="purple">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        Contabilidad
+      </button>
+    </div>
+
+    <!-- ── FACTURACIÓN ── -->
+    <div class="sol-panel active" id="tab-facturacion">
+
+      <div class="sol-card acc-blue">
+        <div class="sol-card-head">
+          <div class="sol-card-icon">
+            <svg viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
+          <div>
+            <div class="sol-card-title">Facturación Electrónica</div>
+            <div class="sol-card-sub">Cumplimiento DGII · e-CF</div>
+          </div>
+        </div>
+        <div class="sol-card-body">
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Emisión de e-CF (Comprobante Fiscal Electrónico)</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>e-CF 31, 32, 33, 34, 41, 43, 44, 45, 46, 47</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Firma digital y envío automático a DGII</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Notas de crédito y débito electrónicas</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Reportes 606 / 607 / 608 automáticos</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Historial de ventas y estado de documentos</div>
+        </div>
+      </div>
+
+      <div class="sol-card acc-blue">
+        <div class="sol-card-head">
+          <div class="sol-card-icon">
+            <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <div>
+            <div class="sol-card-title">Punto de Venta (POS)</div>
+            <div class="sol-card-sub">Ventas rápidas en mostrador</div>
+          </div>
+        </div>
+        <div class="sol-card-body">
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Pantalla táctil optimizada para velocidad</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Múltiples formas de pago (efectivo, tarjeta, transferencia)</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Descuentos, promociones y combos</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Impresión de recibos y facturas fiscales</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Apertura y cierre de caja con corte Z</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Ventas offline (sincronización automática)</div>
+        </div>
+      </div>
+
+      <div class="sol-card acc-blue">
+        <div class="sol-card-head">
+          <div class="sol-card-icon">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+          </div>
+          <div>
+            <div class="sol-card-title">Gestión de Clientes</div>
+            <div class="sol-card-sub">CRM básico integrado</div>
+          </div>
+        </div>
+        <div class="sol-card-body">
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Registro de clientes con RNC / Cédula</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Historial completo de compras por cliente</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Cuentas por cobrar y estado de cuenta</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Límites de crédito y alertas de deuda</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Envío de estado de cuenta por email</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Segmentación por tipo de cliente</div>
+        </div>
+      </div>
+
+    </div><!-- /facturacion -->
+
+    <!-- ── INVENTARIO ── -->
+    <div class="sol-panel" id="tab-inventario">
+
+      <div class="sol-card acc-cyan">
+        <div class="sol-card-head">
+          <div class="sol-card-icon">
+            <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          </div>
+          <div>
+            <div class="sol-card-title">Órdenes de Compra</div>
+            <div class="sol-card-sub">Compras a proveedores</div>
+          </div>
+        </div>
+        <div class="sol-card-body">
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Generación de órdenes de compra a proveedores</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Aprobación por niveles (flujo de autorización)</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Seguimiento de estado: pendiente / recibida / anulada</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Conversión directa a orden de entrada</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Comparación de precios por proveedor</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Historial de compras por producto</div>
+        </div>
+      </div>
+
+      <div class="sol-card acc-cyan">
+        <div class="sol-card-head">
+          <div class="sol-card-icon">
+            <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </div>
+          <div>
+            <div class="sol-card-title">Orden de Entrada</div>
+            <div class="sol-card-sub">Recepción de mercancía</div>
+          </div>
+        </div>
+        <div class="sol-card-body">
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Recepción de productos con lectura de código de barras</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Verificación contra orden de compra original</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Registro de lotes y fechas de vencimiento</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Actualización automática del inventario al recibir</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Devoluciones parciales y ajustes de cantidad</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Generación automática del asiento contable</div>
+        </div>
+      </div>
+
+      <div class="sol-card acc-cyan">
+        <div class="sol-card-head">
+          <div class="sol-card-icon">
+            <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+          </div>
+          <div>
+            <div class="sol-card-title">Control de Inventario</div>
+            <div class="sol-card-sub">Stock en tiempo real</div>
+          </div>
+        </div>
+        <div class="sol-card-body">
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Stock en tiempo real por almacén / sucursal</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Toma física de inventario con dispositivo móvil</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Transferencias entre almacenes</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div><span style="display:flex;align-items:center;gap:4px;">Alertas de productos próximos a vencer <span class="sol-tag" style="background:#FEF3C7;color:#92400E;">Nuevo</span></span></div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Alertas de stock mínimo y reorden automático</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Reporte de productos sin movimiento</div>
+        </div>
+      </div>
+
+    </div><!-- /inventario -->
+
+    <!-- ── CONTABILIDAD ── -->
+    <div class="sol-panel" id="tab-contabilidad">
+
+      <div class="sol-card acc-purple">
+        <div class="sol-card-head">
+          <div class="sol-card-icon">
+            <svg viewBox="0 0 24 24"><path d="M3 3h18v18H3zM3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
+          </div>
+          <div>
+            <div class="sol-card-title">Estados Financieros</div>
+            <div class="sol-card-sub">Informes contables clave</div>
+          </div>
+        </div>
+        <div class="sol-card-body">
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Estado de Situación Financiera (Balance General)</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Estado de Resultados (General y por período)</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Estado de Flujo de Efectivo</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Estado de Cambios en el Patrimonio</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Comparativos mensuales y anuales</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Exportación a Excel y PDF</div>
+        </div>
+      </div>
+
+      <div class="sol-card acc-purple">
+        <div class="sol-card-head">
+          <div class="sol-card-icon">
+            <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+          </div>
+          <div>
+            <div class="sol-card-title">Contabilidad General</div>
+            <div class="sol-card-sub">Diario, mayor y auxiliares</div>
+          </div>
+        </div>
+        <div class="sol-card-body">
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Plan de cuentas configurable (NIIF / local)</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Libro diario y libro mayor automáticos</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Asientos manuales y asientos de ajuste</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Cierre de período mensual y anual</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Conciliación bancaria automática</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Centro de costos y proyectos</div>
+        </div>
+      </div>
+
+      <div class="sol-card acc-purple">
+        <div class="sol-card-head">
+          <div class="sol-card-icon">
+            <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          </div>
+          <div>
+            <div class="sol-card-title">Fiscal y Cumplimiento</div>
+            <div class="sol-card-sub">DGII · ITBIS · ISR</div>
+          </div>
+        </div>
+        <div class="sol-card-body">
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Cálculo automático de ITBIS (18% / 16% / exento)</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Declaraciones 607 / 606 / 608 / IT-1</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Retenciones ISR e ITBIS por proveedor</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Cuentas por pagar con calendario de vencimiento</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Proyección de flujo de caja a 30/60/90 días</div>
+          <div class="sol-feature"><div class="sol-check"><svg viewBox="0 0 12 12"><polyline points="2 6 5 9 10 3"/></svg></div>Auditoría de cambios con trazabilidad completa</div>
+        </div>
+      </div>
+
+    </div><!-- /contabilidad -->
+
+  </div>
+</section>
+
+<!-- MAIN CONTENT -->
+<section class="main-section" id="contact-form">
+
+  <!-- LEFT: Info -->
+  <div>
+    <div class="info-card">
+      <div class="info-card-header">
+        <h2>Información de contacto</h2>
+        <p>Estamos listos para ayudarte. Escríbenos o llénanos el formulario y te respondemos en menos de 24 horas.</p>
+      </div>
+      <div class="info-card-body">
+
+        <div class="info-item">
+          <div class="info-icon">
+            <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+          </div>
+          <div>
+            <div class="info-label">Correo electrónico</div>
+            <div class="info-value"><a href="mailto:info@braintechsolution.com">info@braintechsolution.com</a></div>
+            <div class="info-sub">Respondemos en menos de 24 horas hábiles</div>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <div class="info-icon">
+            <svg viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          </div>
+          <div>
+            <div class="info-label">Ubicación</div>
+            <div class="info-value">Santo Domingo, República Dominicana</div>
+            <div class="info-sub">Servicio a nivel nacional</div>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <div class="info-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </div>
+          <div>
+            <div class="info-label">Horario de atención</div>
+            <div class="hours-grid">
+              <div class="hours-row">Lun – Vie <span>8:00 AM – 6:00 PM</span></div>
+              <div class="hours-row">Sábado <span>9:00 AM – 1:00 PM</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <div class="info-icon">
+            <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          </div>
+          <div>
+            <div class="info-label">Certificación</div>
+            <div class="info-value">Proveedor DGII autorizado</div>
+            <div class="info-sub">Facturación Electrónica (e-CF) según normativa dominicana</div>
+          </div>
+        </div>
+
+      </div>
+      <div class="trust-strip">
+        <div class="trust-item">
+          <div class="trust-num">+200</div>
+          <div class="trust-lbl">Empresas activas</div>
+        </div>
+        <div class="trust-div"></div>
+        <div class="trust-item">
+          <div class="trust-num">10+</div>
+          <div class="trust-lbl">Años de experiencia</div>
+        </div>
+        <div class="trust-div"></div>
+        <div class="trust-item">
+          <div class="trust-num">98%</div>
+          <div class="trust-lbl">Satisfacción</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Form -->
+  <div class="form-card">
+    <div class="form-card-header">
+      <h2>Envíanos un mensaje</h2>
+      <p>Cuéntanos sobre tu empresa y te contactaremos con la solución ideal.</p>
+    </div>
+
+    <form id="contactForm" novalidate>
+      <div style="height:24px;"></div>
+
+      <div class="form-row">
+        <div class="field">
+          <label>Nombre completo <span class="req">*</span></label>
+          <input type="text" placeholder="Ej. María Rodríguez" required />
+        </div>
+        <div class="field">
+          <label>Empresa / Negocio <span class="req">*</span></label>
+          <input type="text" placeholder="Nombre de tu empresa" required />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <label>Correo electrónico <span class="req">*</span></label>
+          <input type="email" placeholder="correo@empresa.com" required />
+        </div>
+        <div class="field">
+          <label>Teléfono / WhatsApp</label>
+          <input type="tel" placeholder="(809) 000-0000" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Servicio de interés</label>
+        <select>
+          <option value="">Selecciona una opción…</option>
+          <option>Facturación Electrónica (e-CF)</option>
+          <option>Sistema de Inventario</option>
+          <option>Contabilidad</option>
+          <option>Facturación Comercial</option>
+          <option>Punto de Venta (POS)</option>
+          <option>Solución integral</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Mensaje <span class="req">*</span></label>
+        <textarea placeholder="Cuéntanos sobre tu empresa, cuántos usuarios necesitas, en qué sector operas…" required></textarea>
+      </div>
+
+      <div class="privacy-note">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <p>Tu información está protegida y nunca será compartida con terceros. Solo la usaremos para contactarte con nuestra propuesta.</p>
+      </div>
+
+      <button type="submit" class="btn-submit">
+        <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Enviar mensaje
+      </button>
+    </form>
+
+    <!-- Success state -->
+    <div class="success-msg" id="successMsg">
+      <div class="success-icon">
+        <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+      </div>
+      <h3>¡Mensaje recibido!</h3>
+      <p>Gracias por contactarnos. Un asesor de Braintech te responderá en menos de 24 horas hábiles.</p>
+    </div>
+  </div>
+
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="#" class="logo">
+          <div class="logo-icon">
+            <svg viewBox="0 0 24 24" fill="white"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          </div>
+          <div class="logo-text">
+            <span>Braintech Solution</span>
+            <span style="color:rgba(255,255,255,.4)">República Dominicana</span>
+          </div>
+        </a>
+        <p>Soluciones tecnológicas para empresas dominicanas: facturación, inventario, contabilidad y e-CF.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Soluciones</h4>
+        <ul>
+          <li><a href="#">Facturación Electrónica</a></li>
+          <li><a href="#">Inventario</a></li>
+          <li><a href="#">Contabilidad</a></li>
+          <li><a href="#">Punto de Venta</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Empresa</h4>
+        <ul>
+          <li><a href="#">Nosotros</a></li>
+          <li><a href="#">Clientes</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Soporte</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2024 Braintech Solution SRL. Todos los derechos reservados.</p>
+      <div class="dgii-badge">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Autorizado DGII · Facturación Electrónica e-CF
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- WhatsApp Float -->
+<a href="https://wa.me/18090000000" target="_blank" class="wa-float" title="Escríbenos por WhatsApp">
+  <span class="wa-tooltip">¡Escríbenos!</span>
+  <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+
+<script>
+  // Replace with your actual reCAPTCHA site key
+  const RECAPTCHA_SITE_KEY = 'YOUR_RECAPTCHA_SITE_KEY';
+
+  const SPINNER_HTML = '<svg viewBox="0 0 24 24" style="animation:spin .7s linear infinite" stroke="white" fill="none" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg> Enviando…';
+
+  document.getElementById('contactForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const form = this;
+
+    // ── Client-side validation ──
+    const inputs = form.querySelectorAll('[required]');
+    let valid = true;
+    inputs.forEach(el => {
+      if (!el.value.trim()) { el.style.borderColor = '#EF4444'; valid = false; }
+      else el.style.borderColor = '';
+    });
+    if (!valid) return;
+
+    // ── Collect form data ──
+    const fields = form.querySelectorAll('input, select, textarea');
+    const labels = ['name','company','email','phone','service','message'];
+    const payload = {};
+    fields.forEach((el, i) => { if (labels[i]) payload[labels[i]] = el.value.trim(); });
+
+    // ── Loading state ──
+    const btn = form.querySelector('.btn-submit');
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = SPINNER_HTML;
+
+    try {
+      // ── Get reCAPTCHA v3 token (invisible to user) ──
+      let recaptchaToken = null;
+      if (window.grecaptcha) {
+        recaptchaToken = await new Promise((resolve) => {
+          grecaptcha.ready(() => {
+            grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: 'contact_submit' })
+              .then(resolve)
+              .catch(() => resolve(null));
+          });
+        });
+      }
+
+      payload.recaptchaToken = recaptchaToken;
+
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.ok) {
+        // ── Success ──
+        form.style.display = 'none';
+        document.getElementById('successMsg').style.display = 'block';
+      } else {
+        throw new Error(data.error || 'Error al enviar el mensaje.');
+      }
+    } catch (err) {
+      showFormError(err.message || 'Ocurrió un error. Por favor intenta de nuevo.');
+      btn.disabled = false;
+      btn.innerHTML = originalHTML;
+    }
+  });
+
+  function showFormError(msg) {
+    let errEl = document.getElementById('formError');
+    if (!errEl) {
+      errEl = document.createElement('div');
+      errEl.id = 'formError';
+      errEl.style.cssText = 'background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:13.5px;color:#B91C1C;display:flex;gap:8px;align-items:center;';
+      errEl.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" stroke="#B91C1C" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span></span>';
+      document.querySelector('.btn-submit').insertAdjacentElement('beforebegin', errEl);
+    }
+    errEl.querySelector('span').textContent = msg;
+    errEl.style.display = 'flex';
+  }
+</script>
+<style>
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+<script>
+  // ── Soluciones tabs ──────────────────────────────────
+  document.querySelectorAll('.sol-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.tab;
+
+      // Update buttons
+      document.querySelectorAll('.sol-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      // Update panels
+      document.querySelectorAll('.sol-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('tab-' + target).classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
