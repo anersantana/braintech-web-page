@@ -146,20 +146,17 @@ async function verifyRecaptcha(token) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Mailjet
+// Brevo (ex-Sendinblue)
 // ─────────────────────────────────────────────────────────────────────────────
 
-async function sendMailjet({ name, company, email, phone, service, message }) {
-  const MJ_API_KEY    = process.env.MJ_API_KEY;
-  const MJ_SECRET_KEY = process.env.MJ_SECRET_KEY;
-  const FROM_EMAIL    = process.env.MJ_FROM_EMAIL || "noreply@braintechsolution.com";
-  const FROM_NAME     = process.env.MJ_FROM_NAME  || "Braintech Solution SRL";
-  const TO_EMAILS     = parseRecipients(process.env.MJ_TO_EMAILS);
+async function sendBrevo({ name, company, email, phone, service, message }) {
+  const BREVO_API_KEY = process.env.BREVO_API_KEY;
+  const FROM_EMAIL    = process.env.BREVO_FROM_EMAIL || "noreply@braintechsolution.com";
+  const FROM_NAME     = process.env.BREVO_FROM_NAME  || "Braintech Solution SRL";
+  const TO_EMAILS     = parseRecipients(process.env.BREVO_TO_EMAILS);
 
-  if (!MJ_API_KEY || !MJ_SECRET_KEY) throw new Error("Mailjet credentials missing");
-  if (TO_EMAILS.length === 0)        throw new Error("MJ_TO_EMAILS env var is empty");
-
-  const authHeader = "Basic " + Buffer.from(`${MJ_API_KEY}:${MJ_SECRET_KEY}`).toString("base64");
+  if (!BREVO_API_KEY)          throw new Error("BREVO_API_KEY missing");
+  if (TO_EMAILS.length === 0)  throw new Error("BREVO_TO_EMAILS env var is empty");
 
   const htmlBody = `
     <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#111827;">
@@ -187,24 +184,20 @@ async function sendMailjet({ name, company, email, phone, service, message }) {
     </div>`;
 
   const result = await httpPost(
-    "api.mailjet.com",
-    "/v3.1/send",
-    { Authorization: authHeader },
+    "api.brevo.com",
+    "/v3/smtp/email",
+    { "api-key": BREVO_API_KEY },
     {
-      Messages: [
-        {
-          From:     { Email: FROM_EMAIL, Name: FROM_NAME },
-          To:       TO_EMAILS,
-          ReplyTo:  { Email: email, Name: name },
-          Subject:  `[Contacto] ${name} — ${service || "Consulta general"}`,
-          HTMLPart: htmlBody,
-          TextPart: `Nombre: ${name}\nEmpresa: ${company}\nEmail: ${email}\nTeléfono: ${phone}\nServicio: ${service}\n\nMensaje:\n${message}`,
-        },
-      ],
+      sender:      { email: FROM_EMAIL, name: FROM_NAME },
+      to:          TO_EMAILS.map((e) => ({ email: e.Email })),
+      replyTo:     { email, name },
+      subject:     `[Contacto] ${name} — ${service || "Consulta general"}`,
+      htmlContent: htmlBody,
+      textContent: `Nombre: ${name}\nEmpresa: ${company}\nEmail: ${email}\nTeléfono: ${phone}\nServicio: ${service}\n\nMensaje:\n${message}`,
     }
   );
 
-  if (result.status >= 400) throw new Error(`Mailjet error ${result.status}: ${result.body}`);
+  if (result.status >= 400) throw new Error(`Brevo error ${result.status}: ${result.body}`);
   return result;
 }
 
@@ -352,12 +345,12 @@ module.exports = async function (context, req) {
 
   // ── Send in parallel ──────────────────────────────────────────────────────
   const [mailResult, nrResult] = await Promise.allSettled([
-    sendMailjet(payload),
+    sendBrevo(payload),
     sendNewRelicEvent(payload, clientIp),
   ]);
 
   if (mailResult.status === "rejected") {
-    context.log.error("[Mailjet] Failed:", mailResult.reason?.message);
+    context.log.error("[Brevo] Failed:", mailResult.reason?.message);
     context.res = {
       status: 502,
       headers: corsHeaders,
