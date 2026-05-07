@@ -390,7 +390,7 @@ module.exports = async function (context, req) {
     context.res = {
       status: 502,
       headers: corsHeaders,
-      body: { ok: false, error: "No se pudo enviar el mensaje.", detail: errMsg },
+      body: { ok: false, error: "No se pudo enviar el mensaje. Por favor intenta de nuevo." },
     };
     return;
   }

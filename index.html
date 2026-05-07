@@ -910,7 +910,7 @@
           </div>
           <div>
             <div class="info-label">Correo electrónico</div>
-            <div class="info-value"><a href="mailto:info@braintechsolution.com">info@braintechsolution.com</a></div>
+            <div class="info-value"><a href="mailto:braintech.rd@gmail.com">braintech.rd@gmail.com</a></div>
             <div class="info-sub">Respondemos en menos de 24 horas hábiles</div>
           </div>
         </div>
@@ -934,7 +934,6 @@
             <div class="info-label">Horario de atención</div>
             <div class="hours-grid">
               <div class="hours-row">Lun – Vie <span>8:00 AM – 6:00 PM</span></div>
-              <div class="hours-row">Sábado <span>9:00 AM – 1:00 PM</span></div>
             </div>
           </div>
         </div>
@@ -952,10 +951,6 @@
 
       </div>
       <div class="trust-strip">
-        <div class="trust-item">
-          <div class="trust-num">+200</div>
-          <div class="trust-lbl">Empresas activas</div>
-        </div>
         <div class="trust-div"></div>
         <div class="trust-item">
           <div class="trust-num">10+</div>
@@ -1017,7 +1012,8 @@
 
       <div class="field">
         <label>Mensaje <span class="req">*</span></label>
-        <textarea placeholder="Cuéntanos sobre tu empresa, cuántos usuarios necesitas, en qué sector operas…" required></textarea>
+        <textarea id="fieldMessage" placeholder="Cuéntanos sobre tu empresa, cuántos usuarios necesitas, en qué sector operas…" required minlength="5"></textarea>
+        <span id="fieldMessageError" style="display:none;font-size:12px;color:#B91C1C;margin-top:4px;">El mensaje debe tener al menos 5 caracteres.</span>
       </div>
 
       <div class="privacy-note">
@@ -1112,6 +1108,16 @@
       if (!el.value.trim()) { el.style.borderColor = '#EF4444'; valid = false; }
       else el.style.borderColor = '';
     });
+    // Validación mínimo de caracteres en mensaje
+    const msgEl  = document.getElementById('fieldMessage');
+    const msgErr = document.getElementById('fieldMessageError');
+    if (msgEl && msgEl.value.trim().length < 5) {
+      msgEl.style.borderColor = '#EF4444';
+      msgErr.style.display = 'block';
+      valid = false;
+    } else if (msgEl) {
+      msgErr.style.display = 'none';
+    }
     if (!valid) return;
 
     // ── Collect form data ──
