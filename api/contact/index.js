@@ -187,39 +187,94 @@ async function sendBrevo({ name, company, email, phone, service, message }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// New Relic Custom Event
+// New Relic — helpers
 // ─────────────────────────────────────────────────────────────────────────────
 
-async function sendNewRelicEvent({ name, company, email, service }, clientIp) {
-  const NR_ACCOUNT_ID = process.env.NR_ACCOUNT_ID;
-  const NR_INSERT_KEY = process.env.NR_INSERT_KEY;
+function getNRConfig() {
+  return {
+    accountId: process.env.NR_ACCOUNT_ID,
+    insertKey: process.env.NR_INSERT_KEY,
+    appName:   "Braintech-SWA",
+    env:       process.env.ENVIRONMENT || "production",
+  };
+}
 
-  if (!NR_ACCOUNT_ID || !NR_INSERT_KEY) {
-    console.warn("[NewRelic] Credentials missing — skipping event");
+async function sendNREvents(events) {
+  const { accountId, insertKey } = getNRConfig();
+  if (!accountId || !insertKey) {
+    console.warn("[NewRelic] Credentials missing — skipping");
     return null;
   }
 
   const result = await httpPost(
     "insights-collector.newrelic.com",
-    `/v1/accounts/${NR_ACCOUNT_ID}/events`,
-    { "X-Insert-Key": NR_INSERT_KEY },
-    {
-      eventType:       "ContactFormSubmission",
-      appName:         "Braintech-SWA",
-      environment:     process.env.ENVIRONMENT || "production",
-      leadName:        name,
-      leadCompany:     company || "",
-      leadEmail:       email,
-      serviceInterest: service || "not_specified",
-      clientIp,
-      timestamp:       Math.floor(Date.now() / 1000),
-    }
+    `/v1/accounts/${accountId}/events`,
+    { "X-Insert-Key": insertKey },
+    Array.isArray(events) ? events : [events]
   );
 
   if (result.status >= 400) {
-    console.error(`[NewRelic] Event error ${result.status}: ${result.body}`);
+    console.error(`[NewRelic] Ingest error ${result.status}: ${result.body}`);
   }
   return result;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// New Relic — evento de envío exitoso
+// Campos enviados:
+//   eventType        → "ContactFormSubmission"
+//   appName          → "Braintech-SWA"
+//   environment      → valor de ENVIRONMENT env var
+//   status           → "success"
+//   leadName         → nombre del contacto
+//   leadCompany      → empresa del contacto
+//   leadEmail        → email del contacto
+//   serviceInterest  → servicio seleccionado en el formulario
+//   clientIp         → IP del visitante
+//   timestamp        → unix timestamp (segundos)
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function sendNewRelicEvent({ name, company, email, service }, clientIp) {
+  const { appName, env } = getNRConfig();
+
+  return sendNREvents({
+    eventType:       "ContactFormSubmission",
+    appName,
+    environment:     env,
+    status:          "success",
+    leadName:        name,
+    leadCompany:     company || "",
+    leadEmail:       email,
+    serviceInterest: service || "not_specified",
+    clientIp,
+    timestamp:       Math.floor(Date.now() / 1000),
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// New Relic — evento de error
+// Campos enviados:
+//   eventType    → "ContactFormError"
+//   appName      → "Braintech-SWA"
+//   environment  → valor de ENVIRONMENT env var
+//   errorStage   → dónde ocurrió el error ("brevo", "recaptcha", "validation", etc.)
+//   errorMessage → mensaje de error
+//   clientIp     → IP del visitante
+//   timestamp    → unix timestamp (segundos)
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function sendNewRelicError(stage, errorMessage, clientIp) {
+  const { appName, env } = getNRConfig();
+
+  return sendNREvents({
+    eventType:    "ContactFormError",
+    appName,
+    environment:  env,
+    errorStage:   stage,
+    errorMessage: String(errorMessage).slice(0, 500), // NR limita strings largos
+    clientIp,
+    timestamp:    Math.floor(Date.now() / 1000),
+  });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -292,6 +347,7 @@ module.exports = async function (context, req) {
   const recaptchaOk = await verifyRecaptcha(recaptchaToken);
   if (!recaptchaOk) {
     context.log.warn(`[Security] reCAPTCHA failed for IP: ${clientIp}`);
+    sendNewRelicError("recaptcha", "reCAPTCHA verification failed", clientIp).catch(() => {});
     context.res = {
       status: 400,
       headers: corsHeaders,
@@ -303,6 +359,7 @@ module.exports = async function (context, req) {
   // ── Input validation ─────────────────────────────────────────────────────────
   const errors = validate({ name, email, message });
   if (errors.length > 0) {
+    sendNewRelicError("validation", errors.join(", "), clientIp).catch(() => {});
     context.res = {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -327,11 +384,13 @@ module.exports = async function (context, req) {
   ]);
 
   if (mailResult.status === "rejected") {
-    context.log.error("[Brevo] Failed:", mailResult.reason?.message);
+    const errMsg = mailResult.reason?.message || "unknown error";
+    context.log.error("[Brevo] Failed:", errMsg);
+    sendNewRelicError("brevo", errMsg, clientIp).catch(() => {});
     context.res = {
       status: 502,
       headers: corsHeaders,
-      body: { ok: false, error: "No se pudo enviar el mensaje. Por favor intenta de nuevo." },
+      body: { ok: false, error: "No se pudo enviar el mensaje.", detail: errMsg },
     };
     return;
   }
