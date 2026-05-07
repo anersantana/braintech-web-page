@@ -377,29 +377,24 @@ module.exports = async function (context, req) {
     message: message.trim(),
   };
 
-  // ── Send in parallel ──────────────────────────────────────────────────────────
+  // ── Send — Brevo y New Relic son ambos no bloqueantes ────────────────────────
   const [mailResult, nrResult] = await Promise.allSettled([
     sendBrevo(payload),
     sendNewRelicEvent(payload, clientIp),
   ]);
 
   if (mailResult.status === "rejected") {
+    // Error de Brevo: se registra en logs y New Relic pero NO bloquea al usuario
     const errMsg = mailResult.reason?.message || "unknown error";
-    context.log.error("[Brevo] Failed:", errMsg);
+    context.log.error("[Brevo] Failed (non-fatal):", errMsg);
     sendNewRelicError("brevo", errMsg, clientIp).catch(() => {});
-    context.res = {
-      status: 502,
-      headers: corsHeaders,
-      body: { ok: false, error: "No se pudo enviar el mensaje. Por favor intenta de nuevo." },
-    };
-    return;
   }
 
   if (nrResult.status === "rejected") {
     context.log.warn("[NewRelic] Event failed (non-fatal):", nrResult.reason?.message);
   }
 
-  context.log.info(`[Contact] ✓ Submission from ${payload.email} | IP: ${clientIp}`);
+  context.log.info(`[Contact] Submission from ${payload.email} | Brevo: ${mailResult.status} | IP: ${clientIp}`);
 
   context.res = {
     status: 200,
