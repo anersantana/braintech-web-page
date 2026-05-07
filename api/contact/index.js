@@ -4,11 +4,6 @@ const https = require("https");
 // Security config
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * Allowed origins — set ALLOWED_ORIGINS env var as comma-separated list.
- * Example: "https://braintechsolution.com,https://www.braintechsolution.com"
- * Falls back to blocking all if not set (forces you to configure it).
- */
 function getAllowedOrigins() {
   return (process.env.ALLOWED_ORIGINS || "")
     .split(",")
@@ -16,34 +11,28 @@ function getAllowedOrigins() {
     .filter(Boolean);
 }
 
-/**
- * In-memory rate limiter.
- * Limits each IP to MAX_REQUESTS_PER_WINDOW requests per WINDOW_MS.
- * NOTE: resets on each cold start — good enough for contact forms.
- * For stricter limits, replace with Azure Cache for Redis.
- */
+// ─────────────────────────────────────────────────────────────────────────────
+// Rate limiter
+// ─────────────────────────────────────────────────────────────────────────────
+
 const rateMap = new Map();
-const WINDOW_MS = 10 * 60 * 1000; // 10 minutes
-const MAX_REQUESTS = 5;            // max 5 submissions per IP per window
+const WINDOW_MS    = 10 * 60 * 1000;
+const MAX_REQUESTS = 5;
 
 function isRateLimited(ip) {
-  const now = Date.now();
+  const now   = Date.now();
   const entry = rateMap.get(ip) || { count: 0, windowStart: now };
 
   if (now - entry.windowStart > WINDOW_MS) {
-    // Reset window
     rateMap.set(ip, { count: 1, windowStart: now });
     return false;
   }
-
   if (entry.count >= MAX_REQUESTS) return true;
-
   entry.count++;
   rateMap.set(ip, entry);
   return false;
 }
 
-/** Periodically clean old entries to avoid memory leak on long-running instances */
 setInterval(() => {
   const now = Date.now();
   for (const [ip, entry] of rateMap.entries()) {
@@ -85,12 +74,10 @@ function parseRecipients(envVar) {
   return (envVar || "")
     .split(",")
     .map((e) => e.trim())
-    .filter(Boolean)
-    .map((email) => ({ Email: email }));
+    .filter(Boolean);
 }
 
 function getClientIp(req) {
-  // Azure SWA passes the real IP in this header
   return (
     req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
     req.headers["client-ip"] ||
@@ -99,14 +86,13 @@ function getClientIp(req) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// reCAPTCHA v3 verification
+// reCAPTCHA v3
 // ─────────────────────────────────────────────────────────────────────────────
 
 async function verifyRecaptcha(token) {
   const secret = process.env.RECAPTCHA_SECRET_KEY;
   if (!secret) {
-    // If not configured, skip verification (log a warning)
-    console.warn("[reCAPTCHA] RECAPTCHA_SECRET_KEY not set — skipping verification");
+    console.warn("[reCAPTCHA] RECAPTCHA_SECRET_KEY not set — skipping");
     return true;
   }
   if (!token) return false;
@@ -130,7 +116,6 @@ async function verifyRecaptcha(token) {
         res.on("end", () => {
           try {
             const result = JSON.parse(data);
-            // score >= 0.5 means likely human (0.0 = bot, 1.0 = human)
             const MIN_SCORE = parseFloat(process.env.RECAPTCHA_MIN_SCORE || "0.5");
             resolve(result.success && result.score >= MIN_SCORE);
           } catch {
@@ -146,7 +131,7 @@ async function verifyRecaptcha(token) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Brevo (ex-Sendinblue)
+// Brevo
 // ─────────────────────────────────────────────────────────────────────────────
 
 async function sendBrevo({ name, company, email, phone, service, message }) {
@@ -155,8 +140,8 @@ async function sendBrevo({ name, company, email, phone, service, message }) {
   const FROM_NAME     = process.env.BREVO_FROM_NAME  || "Braintech Solution SRL";
   const TO_EMAILS     = parseRecipients(process.env.BREVO_TO_EMAILS);
 
-  if (!BREVO_API_KEY)          throw new Error("BREVO_API_KEY missing");
-  if (TO_EMAILS.length === 0)  throw new Error("BREVO_TO_EMAILS env var is empty");
+  if (!BREVO_API_KEY)         throw new Error("BREVO_API_KEY missing");
+  if (TO_EMAILS.length === 0) throw new Error("BREVO_TO_EMAILS env var is empty");
 
   const htmlBody = `
     <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#111827;">
@@ -189,7 +174,7 @@ async function sendBrevo({ name, company, email, phone, service, message }) {
     { "api-key": BREVO_API_KEY },
     {
       sender:      { email: FROM_EMAIL, name: FROM_NAME },
-      to:          TO_EMAILS.map((e) => ({ email: e.Email })),
+      to:          TO_EMAILS.map((e) => ({ email: e })),
       replyTo:     { email, name },
       subject:     `[Contacto] ${name} — ${service || "Consulta general"}`,
       htmlContent: htmlBody,
@@ -226,7 +211,7 @@ async function sendNewRelicEvent({ name, company, email, service }, clientIp) {
       leadCompany:     company || "",
       leadEmail:       email,
       serviceInterest: service || "not_specified",
-      clientIp:        clientIp,
+      clientIp,
       timestamp:       Math.floor(Date.now() / 1000),
     }
   );
@@ -253,19 +238,17 @@ function validate({ name, email, message }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Azure Function entry point
+// Azure Function entry point (v3 programming model)
 // ─────────────────────────────────────────────────────────────────────────────
 
 module.exports = async function (context, req) {
-  const clientIp    = getClientIp(req);
-  const origin      = req.headers["origin"] || "";
+  const clientIp       = getClientIp(req);
+  const origin         = req.headers["origin"] || "";
   const allowedOrigins = getAllowedOrigins();
 
-  // ── CORS headers (always include on every response) ──────────────────────
   const corsHeaders = {
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
-    // Only echo back the origin if it's in the allowed list; otherwise block
     "Access-Control-Allow-Origin":
       allowedOrigins.length === 0 || allowedOrigins.includes(origin)
         ? origin || "*"
@@ -273,32 +256,26 @@ module.exports = async function (context, req) {
     "Vary": "Origin",
   };
 
-  // ── Pre-flight ────────────────────────────────────────────────────────────
+  // ── Pre-flight ──────────────────────────────────────────────────────────────
   if (req.method === "OPTIONS") {
     context.res = { status: 204, headers: corsHeaders, body: "" };
     return;
   }
 
-  // ── Method check ──────────────────────────────────────────────────────────
+  // ── Method check ────────────────────────────────────────────────────────────
   if (req.method !== "POST") {
     context.res = { status: 405, headers: corsHeaders, body: { error: "Method not allowed" } };
     return;
   }
 
-  // ── Origin check ─────────────────────────────────────────────────────────
-  // Block requests that don't come from an allowed origin
-  // (allowedOrigins empty = dev mode — logs a warning but allows)
+  // ── Origin check ────────────────────────────────────────────────────────────
   if (allowedOrigins.length > 0 && !allowedOrigins.includes(origin)) {
-    context.log.warn(`[Security] Blocked request from origin: "${origin}" | IP: ${clientIp}`);
-    context.res = {
-      status: 403,
-      headers: corsHeaders,
-      body: { error: "Forbidden" },
-    };
+    context.log.warn(`[Security] Blocked origin: "${origin}" | IP: ${clientIp}`);
+    context.res = { status: 403, headers: corsHeaders, body: { error: "Forbidden" } };
     return;
   }
 
-  // ── Rate limiting ─────────────────────────────────────────────────────────
+  // ── Rate limiting ────────────────────────────────────────────────────────────
   if (isRateLimited(clientIp)) {
     context.log.warn(`[Security] Rate limit exceeded for IP: ${clientIp}`);
     context.res = {
@@ -309,7 +286,7 @@ module.exports = async function (context, req) {
     return;
   }
 
-  // ── reCAPTCHA v3 ─────────────────────────────────────────────────────────
+  // ── reCAPTCHA ────────────────────────────────────────────────────────────────
   const { name, company, email, phone, service, message, recaptchaToken } = req.body || {};
 
   const recaptchaOk = await verifyRecaptcha(recaptchaToken);
@@ -323,7 +300,7 @@ module.exports = async function (context, req) {
     return;
   }
 
-  // ── Input validation ──────────────────────────────────────────────────────
+  // ── Input validation ─────────────────────────────────────────────────────────
   const errors = validate({ name, email, message });
   if (errors.length > 0) {
     context.res = {
@@ -343,7 +320,7 @@ module.exports = async function (context, req) {
     message: message.trim(),
   };
 
-  // ── Send in parallel ──────────────────────────────────────────────────────
+  // ── Send in parallel ──────────────────────────────────────────────────────────
   const [mailResult, nrResult] = await Promise.allSettled([
     sendBrevo(payload),
     sendNewRelicEvent(payload, clientIp),

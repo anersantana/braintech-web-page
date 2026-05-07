@@ -2,17 +2,9 @@
   "name": "braintech-api",
   "version": "1.0.0",
   "description": "Azure Functions API for Braintech Solution SRL contact form",
-  "main": "src/functions/contact.js",
   "engines": {
     "node": ">=18"
   },
-  "scripts": {
-    "start": "func start",
-    "build": "echo No build step required"
-  },
-  "dependencies": {
-    "@azure/functions": "^4.0.0"
-  },
-  "devDependencies": {},
+  "dependencies": {},
   "private": true
 }
