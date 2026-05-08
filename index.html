@@ -59,31 +59,18 @@
     .logo {
       display: flex;
       align-items: center;
-      gap: 10px;
       text-decoration: none;
     }
-    .logo-icon {
-      width: 40px;
-      height: 40px;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .logo img {
+      height: 48px;
+      width: auto;
+      display: block;
     }
-    .logo-icon svg { width: 22px; height: 22px; fill: white; }
-    .logo-text { display: flex; flex-direction: column; line-height: 1.1; }
-    .logo-text span:first-child {
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--text-dark);
-      letter-spacing: -.3px;
-    }
-    .logo-text span:last-child {
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--text-light);
-      letter-spacing: .2px;
+    .logo-footer img {
+      height: 48px;
+      width: auto;
+      display: block;
+      filter: brightness(0) invert(1);
     }
     .nav-links {
       display: flex;
@@ -632,13 +619,7 @@
 <nav>
   <div class="nav-inner">
     <a href="#" class="logo">
-      <div class="logo-icon">
-        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-      </div>
-      <div class="logo-text">
-        <span>Braintech Solution</span>
-        <span>República Dominicana</span>
-      </div>
+      <img src="/logo-braintech.svg" alt="Braintech Solution SRL" />
     </a>
     <ul class="nav-links">
       <li><a href="#">Inicio</a></li>
@@ -1044,14 +1025,8 @@
   <div class="footer-inner">
     <div class="footer-top">
       <div class="footer-brand">
-        <a href="#" class="logo">
-          <div class="logo-icon">
-            <svg viewBox="0 0 24 24" fill="white"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-          </div>
-          <div class="logo-text">
-            <span>Braintech Solution</span>
-            <span style="color:rgba(255,255,255,.4)">República Dominicana</span>
-          </div>
+        <a href="#" class="logo logo-footer">
+          <img src="/logo-braintech.svg" alt="Braintech Solution SRL" />
         </a>
         <p>Soluciones tecnológicas para empresas dominicanas: facturación, inventario, contabilidad y e-CF.</p>
       </div>
